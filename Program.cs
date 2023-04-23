@@ -11,6 +11,7 @@ namespace Staff_Management_App
         static void Main(string[] args)
         {
             Admin admin = new Admin();
+            Utils util = new Utils();
 
             int mode;
             Console.WriteLine("Welcome to the Staff Management App");
@@ -91,7 +92,9 @@ namespace Staff_Management_App
                    
                 }
                 else if (mode == 2){
-                    //For the Employees
+                    
+                
+                    break;
                 }
                 else
                 {

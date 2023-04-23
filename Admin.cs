@@ -9,8 +9,9 @@ namespace Staff_Management_App
     internal class Admin
     {
         public string fName, lName, role;
-        int pin;
+        public int pin;
 
+        Utils util = new Utils();
         public List<Employee> employees;
         public List<Admin> admins;
         public Admin()
@@ -19,14 +20,12 @@ namespace Staff_Management_App
             this.admins = new List<Admin>();
         }
 
-        public Admin(string fName, string lName, string role)
+        public Admin(string fName, string lName, string role, int pin)
         {
             this.fName = fName;
             this.lName = lName;
             this.role = role;
-
-            Console.Write("Please enter a 4 digit pin: ");
-            pin = int.Parse(Console.ReadLine());
+            this.pin = pin;
         }
 
         public void AddAdmin(Admin admin)
@@ -66,8 +65,11 @@ namespace Staff_Management_App
                     Console.WriteLine("Kindly enter a valid input...");
                     break;
             }
-            admins.Add(admin);
-            Console.WriteLine("Admin Successfully...");
+            Console.Write("Enter a 4 digit pin: ");
+            admin.pin = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Admin Successfully Added...");
+            util.AddadmintoDB(admin);
         }
       
         public void addEmployee() {

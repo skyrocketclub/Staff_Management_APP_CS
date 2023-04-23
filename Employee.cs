@@ -8,6 +8,8 @@ namespace Staff_Management_App
 {
     internal class Employee
     {
+        Utils util = new Utils();
+
         private string fName;
         private string lName;
         private string sex;
@@ -54,17 +56,17 @@ namespace Staff_Management_App
 
         public void addToInbox(string message)
         {
-
+            util.AddmessagetoInbox(this.id, message);
         }
 
         public void viewInbox()
         {
-
+            util.ReadInbox(this.id);
         }
 
         public void clearInbox()
         {
-
+            util.ClearInbox(this.id);
         }
         
     }
