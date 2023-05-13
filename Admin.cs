@@ -8,8 +8,8 @@ namespace Staff_Management_App
 {
     internal class Admin
     {
-        public string fName, lName, role;
-        public int pin;
+        public string fName, lName, role,pin;
+
 
         Utils util = new Utils();
         public List<Employee> employees;
@@ -20,7 +20,7 @@ namespace Staff_Management_App
             this.admins = new List<Admin>();
         }
 
-        public Admin(string fName, string lName, string role, int pin)
+        public Admin(string fName, string lName, string role, string pin)
         {
             this.fName = fName;
             this.lName = lName;
@@ -66,7 +66,7 @@ namespace Staff_Management_App
                     break;
             }
             Console.Write("Enter a 4 digit pin: ");
-            admin.pin = int.Parse(Console.ReadLine());
+            admin.pin = Console.ReadLine();
 
             Console.WriteLine("Admin Successfully Added...");
             util.AddadmintoDB(admin);
@@ -147,5 +147,15 @@ namespace Staff_Management_App
         }
 
         public int adminSize() { return admins.Count(); }
+
+        public bool verifyPassword(string password)
+        {
+            return util.VerifyPassWord(this, password);
+        }
+
+        public bool checkAdmin()
+        {
+            return util.checkAdminInDB(this);
+        }
     }
 }

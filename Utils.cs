@@ -3,48 +3,114 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
+using System.Data.SqlClient; //For SQL
+using System.Security.Cryptography;
 
 namespace Staff_Management_App
 {
+
     internal class Utils
     {
         SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\user\Documents\DB_Staff.mdf;Integrated Security=True;Connect Timeout=30");
 
+        //To ensure proper handling of the SQL query and avoid SQL injection, you should use parameterized queries.
         public void AddadmintoDB(Admin admin)
         {
             connection.Open();
-            SqlCommand cmd = connection.CreateCommand();
-            cmd.CommandType = System.Data.CommandType.Text;
-            cmd.CommandText = "Insert into [Admins] (fname,lname,pin,role) values('" + admin.fName + "','" + admin.lName + "',Hashbytes('SHA2_512','" + admin.pin + "'),'"+ admin.role + "')";
+
+            // Use parameterized query
+            SqlCommand cmd = new SqlCommand("INSERT INTO [Admins] (fname, lname, pin, role) VALUES (@fname, @lname, Hashbytes('SHA2_512', @pin), @role)", connection);
+
+            // Add parameter values
+            cmd.Parameters.AddWithValue("@fname", admin.fName);
+            cmd.Parameters.AddWithValue("@lname", admin.lName);
+            cmd.Parameters.AddWithValue("@pin", Encoding.UTF8.GetBytes(admin.pin));
+            cmd.Parameters.AddWithValue("@role", admin.role);
+
             cmd.ExecuteNonQuery();
             connection.Close();
         }
 
-        /*
-         * static string HashString(string text, string salt = "")
-{
-    if (String.IsNullOrEmpty(text))
-    {
-        return String.Empty;
-    }
-    
-    // Uses SHA256 to create the hash
-    using (var sha = new System.Security.Cryptography.SHA256Managed())
-    {
-        // Convert the string to a byte array first, to be processed
-        byte[] textBytes = System.Text.Encoding.UTF8.GetBytes(text + salt);
-        byte[] hashBytes = sha.ComputeHash(textBytes);
-        
-        // Convert back to a string, removing the '-' that BitConverter adds
-        string hash = BitConverter
-            .ToString(hashBytes)
-            .Replace("-", String.Empty);
 
-        return hash;
-    }
-}
-         * */
+
+        public bool checkAdminInDB(Admin admin)
+        {
+            bool status = false;
+            connection.Open();
+            SqlCommand cmd = connection.CreateCommand();
+            cmd.CommandType = System.Data.CommandType.Text;
+            cmd.CommandText = "SELECT COUNT(*) FROM [Admins] WHERE fname='" + admin.fName + "' AND lname= '" + admin.lName + "'";
+            int count = (int)cmd.ExecuteScalar();
+            if (count > 0)
+            {
+                status = true;
+            }
+           connection.Close();
+
+            return status;
+        }
+
+        public bool VerifyPassWord(Admin admin, string password)
+        {
+            bool status = false;
+            string hashedString;
+            string hashedValue="";
+
+            connection.Open();
+
+            string query = "SELECT pin FROM [Admins] WHERE fname='" + admin.fName + "' AND lname= '" + admin.lName + "'";
+
+            using (SqlCommand cmd = new SqlCommand(query, connection))
+            {
+                //Converting the pin from Binary to hexadecimal which is used to store hashed values
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    byte[] hashedBytes = (byte[])reader["pin"];
+                    hashedValue = ByteArrayToHexString(hashedBytes);
+                }
+                reader.Close();
+            }
+
+            connection.Close();
+
+            using (SHA512 sha512 = SHA512.Create())
+            { 
+                //Create an instance of SHA-512 algorithm
+                //converts the string to bytes
+                //Compute the hash
+                byte[] hashedBytes = sha512.ComputeHash(Encoding.UTF8.GetBytes(password));
+                //Converts the hashed bytes to a string representation
+                hashedString = BitConverter.ToString(hashedBytes).Replace("-", string.Empty);
+            }
+          
+
+            Console.WriteLine("Pin From DB: ");
+            Console.WriteLine(hashedValue);
+            Console.WriteLine("Pin From User: ");
+            Console.WriteLine(hashedString);
+
+            if(hashedValue == hashedString)
+            {
+                status = true;
+                Console.WriteLine("Password Correct!");
+                return status;
+            }
+
+            Console.WriteLine("Password Incorrect!");
+            return status;
+        }
+
+        //helper function which constructs the hexadecimal characters
+        static string ByteArrayToHexString(byte[] bytes)
+        {
+            StringBuilder hex = new StringBuilder(bytes.Length * 2);
+            foreach (byte b in bytes)
+            {
+                hex.AppendFormat("{0:x2}", b);
+            }
+            return hex.ToString().ToUpperInvariant();
+        }
 
         //working
         public void AddmessagetoInbox(int id, string message)

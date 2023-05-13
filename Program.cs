@@ -32,17 +32,35 @@ namespace Staff_Management_App
 
                     if(option == 1)
                     {
+                       
                         //Exisitng Admin
                         Console.Write("Enter your first Name: ");
-                        string firstName = Console.ReadLine();
+                        admin.fName= Console.ReadLine();
                         Console.Write("Enter your last Name: ");
-                        string lastName = Console.ReadLine();
+                        admin.lName = Console.ReadLine();
 
-                        //Check if the Admin is in the 
-                        Admin a = admin.admins.FirstOrDefault( x=> x.fName == firstName && x.lName == lastName );
-                        if(a != null)
+                        //Check if the Admin is in the DB
+                        //Admin a = admin.admins.FirstOrDefault( x=> x.fName == firstName && x.lName == lastName );
+                        //if(a != null)
+                      
+                        if(admin.checkAdmin()==true)
                         {
-                            Console.WriteLine("Welcome " + a.fName);
+                            Console.WriteLine("Welcome " + admin.fName);
+                            ///////////////////////////////////////////////////////////
+
+                            Console.Write("Enter your Password: ");
+                            string pass = Console.ReadLine();
+                            if (admin.verifyPassword(pass))
+                            {
+                                Console.WriteLine("Successful");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Incorrect PAssword");
+                            }
+                            //////////////////////////////////////////////////////////
+
+
                             Console.WriteLine("What operation would you like to carry out?: ");
                             Console.Write("1 - Add Employee\n2 - View all Employees\n3 - Edit Employee details\n4 - Delete Employee\n5 - Send Message to Employee\nOption: ");
                             option = int.Parse(Console.ReadLine());
